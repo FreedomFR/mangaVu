@@ -4,7 +4,7 @@
                 <h1 class="card-title"><?= $detailManga[0]["titre"] ?></h1>
                 <div class="col">
                     <div align="center">
-                        <img src="../image/<?php echo $detailManga[$i]['image'], '.png'?>" alt="image" width="500px" >
+                        <img src="../image/<?php echo $detailManga[$i]['image']?>" alt="image" width="500px" >
                     </div>
                 </div>
                 <div class="col" style="padding-top: 200px">

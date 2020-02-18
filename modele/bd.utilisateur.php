@@ -1,30 +1,29 @@
 <?php
 include_once "bd.inc.php";
 
-function login($email, $password) {
+function login($mail, $mdp) {
     if (!isset($_SESSION)) {
         session_start();
-    }  
+    }
+    $util = getUtilisateurByMailU($mail);
+    $mdpBD = $util["mdp"];
+    $nom = $util["nom"];
 
-    $util = getUtilisateurByMailU($email);
-    $mdpBD = $util["password"];
-    $name = $util["name"];
-
-    if (trim($mdpBD) == trim(crypt($password, $mdpBD))) {
+    if (trim($mdpBD) == trim(crypt($mdp, $mdpBD))) {
         // le mot de passe est celui de l'utilisateur dans la base de donnees
-        $_SESSION["email"] = $email;
-        $_SESSION["password"] = $mdpBD;
-        $_SESSION["name"] = $name;
+        $_SESSION["mail"] = $mail;
+        $_SESSION["mdp"] = $mdpBD;
+        $_SESSION["nom"] = $nom;
     }
 }
 function logout() {
     if (!isset($_SESSION)) {
         session_start();
     }
-    unset($_SESSION["email"]);
-    unset($_SESSION["password"]);
-    unset($_SESSION["name"]);
-    
+    unset($_SESSION["mail"]);
+    unset($_SESSION["mdp"]);
+    unset($_SESSION["nom"]);
+
 } 
 
 function isLoggedOn() {
@@ -33,9 +32,9 @@ function isLoggedOn() {
     }
     $ret = false;
 
-    if (isset($_SESSION["email"])) {
-        $util = getUtilisateurByMailU($_SESSION["email"]);
-        if ($util["email"] == $_SESSION["email"] && $util["password"] == $_SESSION["password"]
+    if (isset($_SESSION["mail"])) {
+        $util = getUtilisateurByMailU($_SESSION["mail"]);
+        if ($util["mail"] == $_SESSION["mail"] && $util["mdp"] == $_SESSION["mdp"]
         ) {
             $ret = true;
         }
@@ -43,12 +42,12 @@ function isLoggedOn() {
     return $ret;
 }
 
-    function getUtilisateurByMailU($email) {
+    function getUtilisateurByMailU($mail) {
 
         try {
             $cnx = connexionPDO();
-            $req = $cnx->prepare("select * from mrbs_users where email=:email");
-            $req->bindValue(':email', $email, PDO::PARAM_STR);
+            $req = $cnx->prepare("select * from utilisateur where mail=:mail");
+            $req->bindValue(':mail', $mail, PDO::PARAM_STR);
             $req->execute();
             
             $resultat = $req->fetch(PDO::FETCH_ASSOC);
@@ -61,16 +60,16 @@ function isLoggedOn() {
 
     
 
-    function addUtilisateur($email, $password, $name) {
+    function addUtilisateur($mail, $mdp, $nom) {
         try {
             $cnx = connexionPDO();
     
-            $mdpUCrypt = crypt($password, "sel");
-            $req = $cnx->prepare("insert into mrbs_users (email, password, name) values(:email,:password,:name)");
-            $req->bindValue(':email', $email, PDO::PARAM_STR);
-            $req->bindValue(':password', $mdpUCrypt, PDO::PARAM_STR);
-            $req->bindValue(':name', $name, PDO::PARAM_STR);
-            
+            $mdpUCrypt = crypt($mdp, "siteWeb");
+            $req = $cnx->prepare("insert into utilisateur (mail, mdp, nom) values(:mail,:mdp,:nom)");
+            $req->bindValue(':mail', $mail, PDO::PARAM_STR);
+            $req->bindValue(':mdp', $mdpUCrypt, PDO::PARAM_STR);
+            $req->bindValue(':nom', $nom, PDO::PARAM_STR);
+
             $resultat = $req->execute();
         } catch (PDOException $e) {
             print "Erreur !: " . $e->getMessage();
@@ -81,7 +80,7 @@ function isLoggedOn() {
 
     function getMailULoggedOn(){
         if (isLoggedOn()){
-            $ret = $_SESSION["email"];
+            $ret = $_SESSION["mail"];
         }
         else {
             $ret = "";

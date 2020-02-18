@@ -6,20 +6,33 @@
 
 <head>
     <title>Site pour voir les manga lus</title>
-    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
     <link rel="stylesheet" href="../css/bootstrap/css/bootstrap.css">
 </head>
+<body>
+<?php include_once "$racine/modele/bd.utilisateur.php";?>
+<?php include_once "$racine/modele/bd.utilisateur.php";?>
 <nav>
 
     <ul id="menuGeneral">
         <ul class="nav nav-pills nav-fill">
             <li class="nav-item">
-                <a class="nav-link" href="./?action=listeManga">Liste manga lu</a>
+                <a class="nav-link" href="../?action=listeManga">Liste manga lu</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="./?action=ajouter">Ajouter Manga</a>
+                <?php if(isLoggedOn()){?>
+                    <a class="nav-link" href="../?action=ajouter">Ajouter Manga</a>
+                <?php } ?>
+            </li>
+            <li class="nav-item">
+                <?php if(isLoggedOn()){ $email = getMailULoggedOn(); $util = getUtilisateurByMailU($email);?>
+                    <a class="nav-link" href="../?action=profil">Utilisateur :<?= " " .$util["nom"] ?> </a>
+                <?php }
+                else{ ?>
+                    <a class="nav-link" href="../?action=connection">Connexion</a>
+                <?php } ?>
             </li>
         </ul>
 </nav>
 
 <img src="../image/header.png" class="image_header" alt="image_header">
+</body>
